@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Focus Flow</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      text-align: center;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 40px;
+      border-radius: 20px;
+      backdrop-filter: blur(15px);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+      width: 320px;
+      transition: all 0.3s;
+    }
+
+    h1 {
+      font-size: 32px;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      margin-bottom: 20px;
+      opacity: 0.8;
+    }
+
+    #timer {
+      font-size: 52px;
+      margin: 20px 0;
+      font-weight: bold;
+    }
+
+    .controls {
+      margin-bottom: 15px;
+    }
+
+    .controls button {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      margin: 3px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button {
+      padding: 10px 15px;
+      margin: 5px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: 0.3s;
+    }
+
+    .start { background: #00c9a7; }
+    .pause { background: #ff9671; }
+    .reset { background: #ffc75f; color: black; }
+    .focus { background: #845ec2; }
+
+    button:hover {
+      transform: scale(1.05);
+    }
+
+    #message {
+      margin-top: 20px;
+      font-size: 16px;
+      min-height: 40px;
+    }
+
+    /* Focus Mode */
+    .focus-mode {
+      width: 100vw !important;
+      height: 100vh !important;
+      border-radius: 0 !important;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container" id="app">
+    <h1>?? Focus Lane</h1>
+    <div class="subtitle">Deep Work. Zero Distractions.</div>
+
+    <div id="timer">25:00</div>
+
+    <div class="controls" id="timeControls">
+      <button onclick="changeTime(-5)">-5 min</button>
+      <button onclick="changeTime(-1)">-1 min</button>
+      <button onclick="changeTime(1)">+1 min</button>
+      <button onclick="changeTime(5)">+5 min</button>
+    </div>
+
+    <div id="mainButtons">
+      <button class="start" onclick="startTimer()">Start</button>
+      <button class="pause" onclick="pauseTimer()">Pause</button>
+      <button class="reset" onclick="resetTimer()">Reset</button>
+      <button class="focus" onclick="toggleFocusMode()">Focus Mode</button>
+    </div>
+
+    <div id="message"></div>
+  </div>
+
+  <!-- Sound -->
+  <audio id="alarmSound" src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3"></audio>
+
+  <!-- Lo-fi Music -->
+  <audio id="lofiMusic" loop>
+    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3">
+  </audio>
+
+  <script>
+    let time = 1500;
+    let timerInterval;
+    let focusMode = false;
+
+    const messages = [
+      "?? You're unstoppable!",
+      "?? That was powerful focus!",
+      "?? Keep dominating your goals!",
+      "?? You're building your future!",
+      "?? Discipline wins!"
+    ];
+
+    function updateDisplay() {
+      let minutes = Math.floor(time / 60);
+      let seconds = time % 60;
+
+      document.getElementById("timer").innerText =
+        (minutes < 10 ? "0" : "") + minutes + ":" +
+        (seconds < 10 ? "0" : "") + seconds;
+    }
+
+    function changeTime(minutes) {
+      if (timerInterval) return;
+      time += minutes * 60;
+      if (time < 60) time = 60;
+      updateDisplay();
+    }
+
+    function startTimer() {
+      if (timerInterval) return;
+
+      document.getElementById("lofiMusic").play();
+
+      timerInterval = setInterval(() => {
+        if (time > 0) {
+          time--;
+          updateDisplay();
+        } else {
+          clearInterval(timerInterval);
+          timerInterval = null;
+          endSession();
+        }
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      document.getElementById("lofiMusic").pause();
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      timerInterval = null;
+      time = 1500;
+      updateDisplay();
+      document.getElementById("message").innerText = "";
+      document.getElementById("lofiMusic").pause();
+    }
+
+    function endSession() {
+      document.getElementById("alarmSound").play();
+      document.getElementById("lofiMusic").pause();
+
+      const random = messages[Math.floor(Math.random() * messages.length)];
+      document.getElementById("message").innerText = random;
+    }
+
+    function toggleFocusMode() {
+      const app = document.getElementById("app");
+      const controls = document.getElementById("timeControls");
+      const buttons = document.getElementById("mainButtons");
+
+      focusMode = !focusMode;
+
+      if (focusMode) {
+        app.classList.add("focus-mode");
+        controls.classList.add("hidden");
+        buttons.classList.add("hidden");
+      } else {
+        app.classList.remove("focus-mode");
+        controls.classList.remove("hidden");
+        buttons.classList.remove("hidden");
+      }
+    }
+
+    updateDisplay();
+  </script>
+
+</body>
+</html>
